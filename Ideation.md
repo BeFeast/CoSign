@@ -4,8 +4,8 @@
 > PRD comes later (requirements, MVP scope, acceptance criteria).  
 > This file captures: problem, who it’s for, product thesis, decisions, naming, open questions.
 
-**Last updated:** 2026-07-25  
-**Status:** Phase 1 locked · **Name: CoSign** (working) · PRD started · Phase 2 AI/features expansion optional
+**Last updated:** 2026-07-26  
+**Status:** Phase 1 locked · **Name: CoSign** (working) · MVP built · **v2 direction: adoption / kill the admin tax** (see below)
 
 ---
 
@@ -148,6 +148,64 @@ Create / link collaborator profiles
 
 ---
 
+## v2 direction — kill the admin tax (from producer interviews, 2026-07-26)
+
+**The signal:** producers agree CoSign saves time long-run but **won't adopt it** — it feels like *extra admin* piled on an already-draining post-production slog (strip beat → samples → send to collaborators → upload YouTube/BeatStars → cover art → naming). The cost lands at the worst possible moment. So the real constraint isn't "make logging nicer," it's:
+
+> CoSign must **read work producers already do** — not add a step. It has to feel like it *removes* effort or costs ~zero, or it dies no matter how good the payoff.
+
+### The wedge: read the filename (not ID3 metadata)
+
+Producers already encode everything in the **file name** by habit, e.g.:
+
+```
+Velvet 95bpm Gm @antn42 @timmyxholliday
+```
+→ title `Velvet` · `95` BPM · `Gm` · roster `@antn42`, `@timmyxholliday`.
+
+Drop file(s) → CoSign parses → prefilled work + roster. **Zero new behavior** — you already type this. Batch-drop a whole folder = instant catalog + collab graph (kills the empty-app cold start). Bonus: MP3s can also carry embedded cover art (`APIC`) to pull in.
+
+> ID3/WAV metadata was the first idea but it's weaker: BPM/key only present if a tool wrote it, and **collaborators are never in metadata**. The filename carries the one thing that matters — *who's on it* — and it's a habit, not a new tool.
+
+### Identity = a claimable "producer tag" (not a platform login)
+
+- The string on the file is a **self-chosen credit alias**. (I write `antn42` on every sample even though my IG handle differs — it's the name I credit myself as, not any one platform.)
+- You **claim your tag** + register **aliases** (`antn`, `anton42`…); optionally link socials underneath (for profile/clout, *not* for matching).
+- A filename tag resolves to whoever claimed it → cross-platform inconsistency stops mattering.
+- The `@` is **optional** — bare tags (`antn42`) must resolve too; the parser leans on known/claimed tags.
+
+### Verification — stop me from grabbing `@metroboomin`
+
+- Two layers: **account auth** (a real login = who you are) vs **tag claim** (which aliases route to you). Only the claim is squattable.
+- **Squatting a tag can't steal money** — splits still require co-sign. So gate *proportionally*, not heavy KYC for everyone; verification only protects credit/clout.
+- **Graph-weighted claiming:** obscure tag (few outside credits) = one-click, reversible by dispute. **Notable** tag (credited by many *independent* accounts) = auto-gated → must prove control (social OAuth **or** bio verification code + collaborator vouching). `metroboomin` is heavy in the graph, so it can't be silently grabbed.
+
+### Parsing messy names — honest: it's ambiguous
+
+Example `m85 95 antn42` → name `m85`, bpm `95`, prod `antn42`, via heuristics:
+- fused letters+digits (`m85`) = **title** token, never BPM
+- standalone integer ≈60–200 = **BPM**
+- trailing token matching a **known/claimed tag** = **producer**
+- **Always show a confirm/correct card** — never a silent wrong write.
+
+Robustness comes from **learning each producer's convention after a few confirms** (per-user parser), *not* one universal regex. And the registry self-disambiguates as more tags get claimed (bare tags become recognizable). Some producers write nothing → graceful fallback to today's manual form with the filename as a title seed.
+
+### Bidirectional bonus
+
+Once a work exists, CoSign can **emit the canonical filename** to paste back — so it also fixes the consistent-naming pain for BeatStars/YouTube. Reads *and* writes the convention.
+
+### v2 thesis (one line)
+
+> **Claimable tag identity (graph-gated) + filename capture (heuristics → per-user learned) + co-sign (protects the money).** Three legs, mutually reinforcing. CoSign reads the filenames producers already write instead of asking for paperwork.
+
+**New open questions (v2):**
+- What threshold makes a tag "notable" enough to require hard verification?
+- Which socials for OAuth / bio-code proof (IG, BeatStars, X)?
+- First-drop universal parser scope vs. when per-user learned convention kicks in?
+- Tag-namespace collisions + dispute/appeal flow?
+
+---
+
 ## Naming brainstorm
 
 ### Naming criteria
@@ -243,6 +301,11 @@ Splitproof · Trackstack · InTheRoom · TagIn · RollCall · OnRecord · CueShe
 | 2026-07-25 | Ideation lives in `Ideation.md`; PRD is a later separate doc |
 | 2026-07-25 | Working name locked: **CoSign** |
 | 2026-07-25 | MVP PRD created: `PRD.md` |
+| 2026-07-26 | Interviews: adoption blocker = feels like extra admin post-production → v2 goal is to *read work already done*, not add a step |
+| 2026-07-26 | Adoption wedge = **filename ingestion** (parse producer file-naming convention → auto-fill work + roster), not ID3 metadata |
+| 2026-07-26 | Identity primitive = **claimable producer tag + aliases** (not a platform login); socials link underneath |
+| 2026-07-26 | Tag-claim verification is **graph-weighted**; squatting a tag can't move money (co-sign protects splits) |
+| 2026-07-26 | Filename parser = heuristics + **always-confirm** + **per-user learned convention** (no universal regex) |
 
 ---
 
