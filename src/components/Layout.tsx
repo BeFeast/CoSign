@@ -82,7 +82,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {/* Top bar */}
       <header className="sticky top-0 z-30 border-b border-line bg-bg/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
-          <button onClick={() => navigate('/app')} className="shrink-0">
+          {/* Temporary (showcase): logo → landing/main page, not the app */}
+          <button onClick={() => navigate('/')} className="shrink-0">
             <Brand />
           </button>
           <div className="flex items-center gap-2">
