@@ -33,9 +33,9 @@ function IdentitySwitcher() {
       </button>
       <Modal open={open} onClose={() => setOpen(false)} title="Switch collaborator (demo)">
         <p className="mb-4 text-sm text-ink-soft">
-          CoSign approvals are multi-party — normally each person signs from their own account.
+          Approvals are multi-party — normally each person signs from their own account.
           There's no login in this demo, so you can step into any collaborator here to send and
-          co-sign proposals on the same catalog.
+          approve changes on the same catalog.
         </p>
         <div className="space-y-2">
           {db.users.map((u) => (
@@ -64,10 +64,10 @@ function IdentitySwitcher() {
 }
 
 const navItems = [
-  { to: '/app', label: 'Library', icon: IconLibrary, end: true },
-  { to: '/app/collaborators', label: 'Collaborators', icon: IconUsers, end: false },
-  { to: '/app/notifications', label: 'Activity', icon: IconBell, end: false },
-  { to: '/app/profile', label: 'Profile', icon: IconUser, end: false },
+  { to: '/app', label: 'Catalog', short: 'Catalog', icon: IconLibrary, end: true },
+  { to: '/app/collaborators', label: 'People', short: 'People', icon: IconUsers, end: false },
+  { to: '/app/notifications', label: 'Activity', short: 'Activity', icon: IconBell, end: false },
+  { to: '/app/profile', label: 'Your rights info', short: 'Rights', icon: IconUser, end: false },
 ]
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -91,7 +91,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               className="inline-flex items-center gap-1.5 bg-brand px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-soft"
             >
               <IconPlus size={17} />
-              <span className="hidden sm:inline">New work</span>
+              <span className="hidden sm:inline">Log a work</span>
             </button>
             <IdentitySwitcher />
           </div>
@@ -139,7 +139,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 className={`relative flex flex-col items-center gap-0.5 py-2.5 text-[10px] font-medium ${active ? 'text-brand-soft' : 'text-ink-faint'}`}
               >
                 <n.icon size={20} />
-                {n.label}
+                {n.short}
                 {n.to === '/app/notifications' && unread > 0 && (
                   <span className="absolute right-[22%] top-1.5 h-2 w-2 rounded-sm bg-brand" />
                 )}

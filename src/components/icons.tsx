@@ -66,6 +66,12 @@ export const IconExternal = ({ size, className }: P) => (
 export const IconInfo = ({ size, className }: P) => (
   <svg {...s(size)} className={className}><circle cx="12" cy="12" r="9" /><path d="M12 16v-4M12 8h.01" /></svg>
 )
+export const IconAlert = ({ size, className }: P) => (
+  <svg {...s(size)} className={className}><path d="M12 8v5M12 17h.01" /></svg>
+)
+export const IconLock = ({ size, className }: P) => (
+  <svg {...s(size)} className={className}><rect x="4" y="11" width="16" height="10" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>
+)
 export const IconRows = ({ size, className }: P) => (
   <svg {...s(size)} className={className}><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" /></svg>
 )

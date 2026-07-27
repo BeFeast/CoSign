@@ -77,7 +77,7 @@ export default function CollaboratorDetail() {
 
         {isContact && (
           <p className="mt-5 rounded-sm border border-line bg-bg-soft p-3 text-xs text-ink-soft">
-            Local contact — can be placed on works, but can't digitally co-sign until they join. You can confirm on their behalf offline from a work.
+            Local contact — can be placed on works, but can't approve changes until they join. You can confirm on their behalf offline from a work.
           </p>
         )}
       </Card>

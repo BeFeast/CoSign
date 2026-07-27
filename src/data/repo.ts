@@ -10,6 +10,7 @@ import type {
   ProposalMember,
   Role,
   ShareLink,
+  SplitProposal,
   User,
   Work,
   WorkEvent,
@@ -114,6 +115,41 @@ export const openProposalFor = (wid: string) =>
 
 export const votesFor = (proposalId: string) =>
   loadDb().votes.filter((v) => v.proposal_id === proposalId)
+
+// Account users who must approve a proposal = current roster account holders
+// + account holders named in the payload. Contacts never vote.
+export function affectedUsersFor(wid: string, proposal: SplitProposal): string[] {
+  const affected = new Set<string>()
+  for (const c of contributionsFor(wid)) if (c.user_id) affected.add(c.user_id)
+  for (const m of proposal.payload) if (m.user_id) affected.add(m.user_id)
+  return [...affected]
+}
+
+export type PendingForUser = {
+  work: Work
+  proposal: SplitProposal
+  proposer: User | null
+  myShare: ProposalMember | null
+}
+
+// Works with an open proposal that is stuck on THIS user's approval (the
+// "needs you" lane). Single source of truth shared by Library + WorkDetail.
+export function worksNeedingApprovalFrom(uid: string): PendingForUser[] {
+  const out: PendingForUser[] = []
+  for (const work of worksForUser(uid)) {
+    const proposal = openProposalFor(work.id)
+    if (!proposal) continue
+    if (votesFor(proposal.id).some((v) => v.voter_user_id === uid)) continue // already voted
+    if (!affectedUsersFor(work.id, proposal).includes(uid)) continue // not my call
+    out.push({
+      work,
+      proposal,
+      proposer: getUser(proposal.proposed_by),
+      myShare: proposal.payload.find((m) => m.user_id === uid) ?? null,
+    })
+  }
+  return out
+}
 
 export const notificationsFor = (uid: string) =>
   loadDb().notifications.filter((n) => n.user_id === uid).sort((a, b) => b.created_at.localeCompare(a.created_at))
@@ -431,7 +467,7 @@ export function openProposal(wid: string, payload: ProposalMember[], summary: st
     // notify every affected account holder except proposer
     for (const uid of affectedAccountUserIds(d, wid, payload)) {
       if (uid !== me.id) {
-        notify(d, uid, 'approval_requested', `${me.display_name} wants your co-sign`, `“${w?.primary_title}” — ${summary || 'a split/roster change'}.`, wid)
+        notify(d, uid, 'approval_requested', `${me.display_name} needs your approval`, `“${w?.primary_title}” — ${summary || 'a split/roster change'}.`, wid)
       }
     }
     touchWork(d, wid)
@@ -466,7 +502,7 @@ export function voteOnProposal(proposalId: string, vote: 'approve' | 'reject') {
       return d
     }
 
-    logEvent(d, p.work_id, me.id, 'proposal_approved', `${me.display_name} co-signed the proposal.`)
+    logEvent(d, p.work_id, me.id, 'proposal_approved', `${me.display_name} approved the change.`)
 
     // check if all affected account holders have approved
     const required = affectedAccountUserIds(d, p.work_id, p.payload)
@@ -525,8 +561,8 @@ function applyProposal(d: Database, proposalId: string) {
   p.resolved_at = now()
   const w = d.works.find((x) => x.id === wid)!
   w.agreement_status = 'confirmed'
-  logEvent(d, wid, p.proposed_by, 'proposal_applied', `Proposal fully co-signed and applied. Splits are now confirmed.`)
-  notify(d, p.proposed_by, 'proposal_resolved', `Proposal approved`, `Everyone co-signed your change to “${w.primary_title}”.`, wid)
+  logEvent(d, wid, p.proposed_by, 'proposal_applied', `Everyone approved the change. Splits are now locked in.`)
+  notify(d, p.proposed_by, 'proposal_resolved', `Change approved`, `Everyone agreed to your change to “${w.primary_title}”.`, wid)
 }
 
 export function cancelProposal(proposalId: string) {

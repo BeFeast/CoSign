@@ -3,11 +3,15 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useDb } from '@/data/useDb'
 import * as repo from '@/data/repo'
 import { Avatar, Badge, Button, Card, EmptyState, Field, Modal, Tabs, useToast } from '@/components/ui'
-import { AgreementBadge, ConfirmDot, WorkTypeBadge } from '@/components/work-bits'
-import { IconArrowLeft, IconCheck, IconClock, IconEdit, IconExternal, IconLink, IconPlus, IconShare, IconTrash, IconX, workTypeIcon } from '@/components/icons'
+import { StatusPill, WorkTypeBadge } from '@/components/work-bits'
+import { SplitBar, segsFromRoster } from '@/components/SplitBar'
+import type { SplitSeg } from '@/components/SplitBar'
+import { IconAlert, IconArrowLeft, IconArrowRight, IconCheck, IconEdit, IconExternal, IconLink, IconLock, IconPlus, IconShare, IconTrash, IconX, workTypeIcon } from '@/components/icons'
 import { fullDate, pct, relTime, workTypeLabel } from '@/lib/format'
 import { ProposeModal } from './work/ProposeModal'
 import { ShareModal } from './work/ShareModal'
+
+const SECTION: Record<'sample' | 'beat' | 'song', string> = { sample: 'Samples', beat: 'Beats', song: 'Songs' }
 
 export default function WorkDetail() {
   const { id } = useParams()
@@ -30,21 +34,38 @@ export default function WorkDetail() {
   const proposal = repo.openProposalFor(work.id)
 
   const tabs = [
-    { key: 'roster', label: 'Roster & splits' },
-    { key: 'titles', label: 'Titles', badge: akas.length || undefined },
-    { key: 'lineage', label: 'Lineage' },
-    { key: 'activity', label: 'Activity', badge: events.length || undefined },
+    { key: 'roster', label: 'People & splits' },
+    { key: 'titles', label: 'Other titles', badge: akas.length || undefined },
+    { key: 'lineage', label: "What it's built on" },
+    { key: 'activity', label: 'History', badge: events.length || undefined },
   ]
+
+  const uses = repo.usesWorks(work.id)
 
   return (
     <div className="mx-auto max-w-3xl">
-      <button onClick={() => navigate('/app')} className="mb-4 inline-flex items-center gap-1.5 text-sm text-ink-faint hover:text-ink">
-        <IconArrowLeft size={16} /> Library
-      </button>
+      {/* Breadcrumb */}
+      <div className="mb-4 flex items-center gap-2 text-xs text-ink-faint">
+        <button onClick={() => navigate('/app')} className="inline-flex items-center gap-1.5 text-ink-soft hover:text-ink">
+          <IconArrowLeft size={14} /> Catalog
+        </button>
+        <span>/</span>
+        <span className="text-ink-soft">{SECTION[work.type]}</span>
+        <span>/</span>
+        <span className="truncate text-ink">{work.primary_title}</span>
+        {uses.length > 0 && (
+          <span className="ml-1 hidden items-center gap-1.5 sm:inline-flex">
+            <span className="text-ink-dim">·</span> built on{' '}
+            <button onClick={() => navigate(`/app/work/${uses[0].id}`)} className="border-b border-dashed border-line text-ink-soft hover:text-ink">
+              {uses[0].primary_title}
+            </button>
+          </span>
+        )}
+      </div>
 
       <WorkHeader work={work} />
 
-      {proposal && <ProposalBanner workId={work.id} />}
+      {proposal && <ApprovalPanel workId={work.id} />}
 
       <div className="mt-6">
         <Tabs tabs={tabs} active={tab} onChange={setTab} />
@@ -80,7 +101,7 @@ function WorkHeader({ work }: { work: ReturnType<typeof repo.getWork> & {} }) {
     <Card className="p-5">
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <WorkTypeBadge type={work.type} />
-        <AgreementBadge status={work.agreement_status} />
+        <StatusPill work={work} meId={me.id} />
       </div>
       <div className="flex items-start justify-between gap-3">
         {renaming ? (
@@ -161,90 +182,116 @@ function NotesEditor({ work }: { work: ReturnType<typeof repo.getWork> & {} }) {
   )
 }
 
-// ── Proposal banner + co-sign flow ───────────────────────────────────────────
-function ProposalBanner({ workId }: { workId: string }) {
+// ── Approval panel (1c: the panel does the explaining) ────────────────────────
+function ApprovalPanel({ workId }: { workId: string }) {
   const db = useDb()
   const me = repo.currentUser()
   const toast = useToast()
+  const work = repo.getWork(workId)!
   const proposal = repo.openProposalFor(workId)
   if (!proposal) return null
 
   const votes = repo.votesFor(proposal.id)
   const myVote = votes.find((v) => v.voter_user_id === me.id)
   const proposer = repo.getUser(proposal.proposed_by)
-
-  // affected account holders = current roster account users + newly added account users
-  const affected = new Set<string>()
-  for (const c of repo.contributionsFor(workId)) if (c.user_id) affected.add(c.user_id)
-  for (const m of proposal.payload) if (m.user_id) affected.add(m.user_id)
-  const affectedList = [...affected]
+  const affected = repo.affectedUsersFor(workId, proposal)
   const approvals = new Set(votes.filter((v) => v.vote === 'approve').map((v) => v.voter_user_id))
-  const isAffected = affected.has(me.id)
+  const isAffected = affected.includes(me.id)
   const isProposer = proposal.proposed_by === me.id
+  const myPct = proposal.payload.find((m) => m.user_id === me.id)?.split_percent
+
+  const todaySegs = segsFromRoster(repo.rosterFor(workId), me.id)
+  const proposedSegs: SplitSeg[] = proposal.payload.map((m) => {
+    const name = m.user_id ? repo.getUser(m.user_id)?.display_name : m.contact_id ? repo.getContact(m.contact_id)?.display_name : 'Unknown'
+    return { name: name ?? 'Unknown', pct: m.split_percent, isYou: m.user_id === me.id, status: 'agreed' }
+  })
 
   return (
-    <Card className="mt-4 border-warn/30 bg-warn/5 p-4">
-      <div className="flex items-center gap-2">
-        <IconClock size={18} className="text-warn" />
-        <h3 className="font-bold text-warn">Splits changed — waiting on co-signs</h3>
-      </div>
-      {proposal.summary && <p className="mt-1.5 text-sm text-ink-soft">{proposal.summary}</p>}
-      <p className="mt-1 text-xs text-ink-faint">Proposed by {proposer?.display_name} · {relTime(proposal.created_at)}</p>
-
-      {/* proposed roster */}
-      <div className="mt-3 space-y-1.5">
-        {proposal.payload.map((m, i) => {
-          const name = m.user_id ? repo.getUser(m.user_id)?.display_name : m.contact_id ? repo.getContact(m.contact_id)?.display_name : 'Unknown'
-          const isNew = !m.contribution_id
-          return (
-            <div key={i} className="flex items-center justify-between rounded-sm bg-bg-soft px-3 py-2 text-sm">
-              <span className="flex items-center gap-2">
-                {name} <span className="text-ink-faint">· {m.role}</span>
-                {isNew && <Badge tone="brand">new</Badge>}
-              </span>
-              <span className="font-mono">{pct(m.split_percent)}</span>
-            </div>
-          )
-        })}
-      </div>
-
-      {/* co-sign progress */}
-      <div className="mt-3">
-        <div className="mb-1.5 text-xs font-medium text-ink-soft">Co-signs ({approvals.size}/{affectedList.length})</div>
-        <div className="flex flex-wrap gap-2">
-          {affectedList.map((uid) => {
-            const u = repo.getUser(uid)!
-            const approved = approvals.has(uid)
-            return (
-              <span key={uid} className={`chip border ${approved ? 'border-ok/30 bg-ok/10 text-ok' : 'border-line bg-bg-soft text-ink-faint'}`}>
-                <Avatar name={u.display_name} hue={u.avatar_hue} size={18} />
-                {u.display_name} {approved ? <IconCheck size={13} /> : '· pending'}
-              </span>
-            )
-          })}
+    <Card className="mt-5 border-brand/45 bg-[#0d0b0c]">
+      {/* Heading */}
+      <div className="flex items-start gap-3 border-b border-line p-4 sm:p-[18px]">
+        <span className="grid h-[22px] w-[22px] shrink-0 place-items-center rounded-sm bg-brand text-white"><IconAlert size={14} /></span>
+        <div className="min-w-0">
+          <h2 className="text-base font-bold tracking-tight sm:text-[17px]">{proposer?.display_name ?? 'Someone'} wants to change who owns this {workTypeLabel[work.type].toLowerCase()}</h2>
+          {proposal.summary && <p className="mt-1.5 text-[13px] leading-relaxed text-ink-soft">“{proposal.summary}”</p>}
+          <p className="mt-1 text-[13px] text-ink-faint">Everyone below has to agree before the split actually changes. Until then the old split stands.</p>
         </div>
       </div>
 
-      {/* actions */}
-      <div className="mt-4 flex flex-wrap gap-2">
+      {/* Before / after diff */}
+      <div className="grid items-stretch gap-3 p-4 sm:grid-cols-[1fr_28px_1fr] sm:gap-0 sm:p-[18px]">
+        <div className="border border-line bg-bg-soft p-3.5">
+          <div className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-ink-faint">Split today</div>
+          <SplitBar segments={todaySegs} showNames height={12} />
+        </div>
+        <div className="hidden place-items-center text-brand sm:grid"><IconArrowRight size={18} /></div>
+        <div className="border border-brand/40 bg-[#150d0f] p-3.5">
+          <div className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-brand-soft">If everyone agrees</div>
+          <SplitBar segments={proposedSegs} showNames height={12} />
+        </div>
+      </div>
+
+      {/* Who has to agree — roll call */}
+      <div className="px-4 pb-4 sm:px-[18px]">
+        <div className="border border-line bg-bg-soft p-3.5 sm:px-4">
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">Who has to agree</span>
+            <span className="font-mono text-[11.5px] text-ink-soft">{approvals.size} of {affected.length}</span>
+          </div>
+          <div className="mb-3.5 flex h-1 gap-0.5">
+            {affected.map((uid) => (
+              <span key={uid} className="flex-1" style={{ background: approvals.has(uid) ? '#4cc79a' : '#2a2a31' }} />
+            ))}
+          </div>
+          <div className="flex flex-col gap-2.5">
+            {affected.map((uid) => {
+              const u = repo.getUser(uid)
+              const agreed = approvals.has(uid)
+              const isMe = uid === me.id
+              return (
+                <div key={uid} className="flex items-center gap-2.5">
+                  {agreed ? (
+                    <span className="grid h-[18px] w-[18px] place-items-center rounded-full bg-ok/15 text-ok"><IconCheck size={11} /></span>
+                  ) : (
+                    <span className={`h-[18px] w-[18px] rounded-full border ${isMe ? 'border-dashed border-brand' : 'border-line'}`} />
+                  )}
+                  <span className="text-[12.5px] font-medium text-ink">
+                    {isMe ? 'You' : u?.display_name}
+                    <span className="font-normal text-ink-faint">
+                      {agreed ? ` — agreed ${relTime(votes.find((v) => v.voter_user_id === uid)?.created_at ?? proposal.created_at)}` : isMe ? <span className="text-brand-soft"> — your turn</span> : ' — not yet'}
+                      {uid === proposal.proposed_by && agreed && ' (they proposed it)'}
+                    </span>
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="flex flex-wrap items-center gap-2.5 px-4 pb-4 sm:px-[18px]">
         {isAffected && !myVote && (
           <>
-            <Button variant="primary" onClick={() => { repo.voteOnProposal(proposal.id, 'approve'); toast('You co-signed', 'ok') }}>
-              <IconCheck size={17} /> Co-sign this
+            <Button variant="primary" onClick={() => { repo.voteOnProposal(proposal.id, 'approve'); toast('You approved the change', 'ok') }}>
+              <IconCheck size={16} /> I agree{myPct != null ? ` — ${pct(myPct)} is right` : ''}
             </Button>
-            <Button variant="danger" onClick={() => { repo.voteOnProposal(proposal.id, 'reject'); toast('Proposal rejected', 'neutral') }}>
-              <IconX size={17} /> Reject
+            <Button variant="outline" onClick={() => toast(`Message ${proposer?.display_name ?? 'them'} — coming soon`, 'neutral')}>
+              Ask {proposer?.display_name ?? 'them'} a question
             </Button>
+            <button onClick={() => { repo.voteOnProposal(proposal.id, 'reject'); toast('You turned this down', 'neutral') }} className="px-1.5 text-[13px] font-medium text-ink-faint hover:text-ink">
+              Turn it down
+            </button>
           </>
         )}
         {isAffected && myVote && (
-          <Badge tone={myVote.vote === 'approve' ? 'ok' : 'bad'}>You {myVote.vote === 'approve' ? 'co-signed' : 'rejected'} this</Badge>
+          <Badge tone={myVote.vote === 'approve' ? 'ok' : 'bad'}>You {myVote.vote === 'approve' ? 'agreed to' : 'turned down'} this change</Badge>
         )}
-        {!isAffected && <Badge tone="neutral">You're not required to co-sign</Badge>}
+        {!isAffected && <Badge tone="neutral">You're not being asked to approve this</Badge>}
         {isProposer && (
-          <Button variant="ghost" onClick={() => { repo.cancelProposal(proposal.id); toast('Proposal cancelled', 'neutral') }}>
-            Cancel proposal
-          </Button>
+          <button onClick={() => { repo.cancelProposal(proposal.id); toast('Request cancelled', 'neutral') }} className="px-1.5 text-[13px] font-medium text-ink-faint hover:text-ink">
+            Cancel this request
+          </button>
         )}
       </div>
       <span className="hidden">{db.current_user_id}</span>
@@ -267,35 +314,49 @@ function RosterTab({ workId }: { workId: string }) {
   return (
     <div>
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-ink-soft">Contributors ({roster.length})</h2>
+        <div className="flex items-center gap-2.5">
+          <h2 className="text-sm font-bold text-ink">Ownership</h2>
+          {proposal && (
+            <span className="inline-flex items-center gap-1.5 text-[11px] text-ink-faint">
+              <IconLock size={12} /> locked while a change is pending
+            </span>
+          )}
+        </div>
         <Button variant="secondary" size="sm" onClick={() => setProposing(true)} disabled={!!proposal}>
-          <IconEdit size={15} /> Propose change
+          <IconEdit size={15} /> Propose a change
         </Button>
       </div>
 
-      <Card className="divide-y divide-line">
+      <Card className="divide-y divide-line-soft">
         {roster.map((r) => {
           const hue = r.person.kind === 'user' ? r.person.user.avatar_hue : r.person.contact.avatar_hue ?? 160
           const c = r.contribution
+          const isYou = c.user_id === me.id
+          const agreed = c.confirm_status === 'confirmed'
+          const fillCls = isYou && !agreed ? 'hatch-red' : !isYou && !agreed ? 'hatch' : ''
+          const fillBg = isYou && agreed ? '#e63b3b' : !isYou && agreed ? '#55555f' : undefined
           return (
             <div key={c.id} className="flex items-center gap-3 p-3.5">
-              <Avatar name={r.name} hue={hue} size={40} account={r.isAccount} />
+              <Avatar name={r.name} hue={hue} size={36} account={r.isAccount} />
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2 font-semibold">
-                  {r.name}
-                  {c.user_id === me.id && <span className="text-xs font-normal text-ink-faint">(you)</span>}
+                <div className="flex items-center gap-2 text-sm font-semibold">
+                  {isYou ? 'You' : r.name}
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-ink-faint">
-                  <ConfirmDot status={c.confirm_status} />
+                <div className="text-xs text-ink-faint">
                   {c.role}
-                  {c.confirm_status === 'awaiting_account' && <span className="text-warn">· awaiting account</span>}
-                  {c.confirm_status === 'confirmed' && c.offline_confirmed_at && <span>· confirmed offline</span>}
+                  {c.confirm_status === 'pending' && <span className="text-brand-soft"> · not agreed yet</span>}
+                  {c.confirm_status === 'awaiting_account' && <span> · hasn't signed up</span>}
+                  {agreed && c.offline_confirmed_at && <span> · confirmed offline</span>}
                 </div>
               </div>
-              <div className="text-right">
-                <div className="font-mono text-base font-semibold">{pct(c.split_percent)}</div>
+              <div className="hidden h-2 w-[150px] shrink-0 gap-0.5 sm:flex">
+                <span className={fillCls} style={{ width: `${c.split_percent}%`, background: fillBg }} />
+                <span style={{ width: `${100 - c.split_percent}%`, background: '#1d1d24' }} />
+              </div>
+              <div className="w-[72px] text-right">
+                <div className="font-mono text-[15px] font-semibold">{pct(c.split_percent)}</div>
                 {!r.isAccount && c.confirm_status === 'awaiting_account' && (
-                  <button onClick={() => setConfirmTarget(c.id)} className="text-xs text-brand-soft hover:underline">
+                  <button onClick={() => setConfirmTarget(c.id)} className="text-[11px] text-brand-soft hover:underline">
                     Confirm offline
                   </button>
                 )}
@@ -303,14 +364,17 @@ function RosterTab({ workId }: { workId: string }) {
             </div>
           )
         })}
-        <div className="flex items-center justify-between px-3.5 py-2.5 text-sm">
+        <div className="flex items-center justify-between bg-bg-soft px-3.5 py-2.5 text-sm">
           <span className="font-medium text-ink-soft">Total</span>
-          <span className={`font-mono font-bold ${Math.round(total) === 100 ? 'text-ok' : 'text-bad'}`}>{pct(total)}</span>
+          <span className={`inline-flex items-center gap-1.5 font-mono font-bold ${Math.round(total) === 100 ? 'text-ok' : 'text-bad'}`}>
+            {Math.round(total) === 100 && <IconCheck size={13} />}{pct(total)}
+          </span>
         </div>
       </Card>
 
-      <p className="mt-3 text-xs text-ink-faint">
-        Names, notes and links can be edited by anyone on the work. Changing splits or who's on the roster needs everyone to co-sign.
+      <p className="mt-3 text-[11.5px] leading-relaxed text-ink-faint">
+        Titles, notes and links: anyone on the work can edit them, straight away.<br />
+        Who's on the roster and who owns what: needs everyone's agreement — that's what a change request is for.
       </p>
 
       {proposing && <ProposeModal open={proposing} onClose={() => setProposing(false)} workId={workId} />}
@@ -325,7 +389,7 @@ function OfflineConfirmModal({ contributionId, onClose, onDone }: { contribution
   return (
     <Modal open onClose={onClose} title="Confirm offline">
       <p className="mb-4 text-sm text-ink-soft">
-        This collaborator isn't on CoSign yet, so they can't co-sign in-app. Record that they agreed offline — this is timestamped and logged, but it's your word, not their digital signature.
+        This collaborator isn't on CoSign yet, so they can't approve changes in-app. Record that they agreed offline — this is timestamped and logged, but it's your word, not their signature.
       </p>
       <Field label="Note (optional)" hint="e.g. “agreed over DM 2026-07-24”">
         <input value={note} onChange={(e) => setNote(e.target.value)} className="input" autoFocus />

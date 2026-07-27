@@ -14,5 +14,9 @@ dist
 .env.*
 !.env.example
 
+# design-tool artifacts (dropped in for reference, not source)
+*.zip
+.uiux_unzip
+
 # os
 .DS_Store

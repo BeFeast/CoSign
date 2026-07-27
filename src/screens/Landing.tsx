@@ -9,7 +9,7 @@ const features = [
   },
   {
     icon: IconCheck,
-    title: 'Splits only change by co-sign',
+    title: 'Splits only change when everyone agrees',
     body: 'Default even splits. Any change to ownership needs every collaborator to approve. No silent 50/50 → 70/30.',
   },
   {

@@ -60,7 +60,7 @@ export default function CreditPackPublic() {
         <div className="mb-6">
           <div className="mb-2 flex flex-wrap items-center gap-2">
             <Badge tone="neutral">{workTypeLabel[work.type]}</Badge>
-            {work.agreement_status === 'confirmed' ? <Badge tone="ok"><IconCheck size={12} /> Splits confirmed</Badge> : <Badge tone="warn">Pending co-signs</Badge>}
+            {work.agreement_status === 'confirmed' ? <Badge tone="ok"><IconCheck size={12} /> Splits agreed</Badge> : <Badge tone="warn">Change pending approval</Badge>}
           </div>
           <h1 className="text-3xl font-extrabold tracking-tight">{work.primary_title}</h1>
           {akas.length > 0 && (

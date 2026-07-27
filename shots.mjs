@@ -3,26 +3,28 @@ const BASE = 'http://localhost:5173'
 const b = await puppeteer.launch({ headless: true })
 const p = await b.newPage()
 await p.setCacheEnabled(false)
-await p.setViewport({ width: 1180, height: 940, deviceScaleFactor: 2 })
+await p.setViewport({ width: 1180, height: 1000, deviceScaleFactor: 2 })
 await p.goto(BASE, { waitUntil: 'networkidle0' })
 await p.evaluate(() => localStorage.clear())
-// first-launch tour
+// first-run tour
 await p.goto(BASE + '/app', { waitUntil: 'networkidle0' }); await new Promise(r=>setTimeout(r,400))
-await p.screenshot({ path: '/tmp/v4-tour.png' }); console.log('tour')
-// step through to the "how it works" bullets step
-await p.evaluate(() => { const b=[...document.querySelectorAll('button')].find(e=>/Next/.test(e.innerText)); b&&b.click() })
-await new Promise(r=>setTimeout(r,200))
-await p.evaluate(() => { const b=[...document.querySelectorAll('button')].find(e=>/Next/.test(e.innerText)); b&&b.click() })
-await new Promise(r=>setTimeout(r,250))
-await p.screenshot({ path: '/tmp/v4-tour-steps.png' }); console.log('tour-steps')
-// dismiss tour + strip, then capture clean app
-await p.evaluate(() => { localStorage.setItem('cosign.tour.v1','1'); localStorage.setItem('cosign.onboard.library.v1','1') })
-const openWork = async (title) => {
-  await p.goto(BASE + '/app', { waitUntil: 'networkidle0' })
-  await p.evaluate((t) => { const el=[...document.querySelectorAll('button')].find(e=>e.innerText.includes(t)); el&&el.click() }, title)
-  await new Promise((r) => setTimeout(r, 500))
-}
-await p.goto(BASE + '/app', { waitUntil: 'networkidle0' }); await new Promise(r=>setTimeout(r,300)); await p.screenshot({ path: '/tmp/v4-library.png' }); console.log('library')
-await openWork('No Ceilings'); await p.screenshot({ path: '/tmp/v4-work.png' }); console.log('work')
-await p.goto(BASE + '/app/new', { waitUntil: 'networkidle0' }); await new Promise(r=>setTimeout(r,300)); await p.screenshot({ path: '/tmp/v4-new.png' }); console.log('new')
+await p.screenshot({ path: '/tmp/e-tour.png' }); console.log('tour')
+// dismiss tour, list view
+await p.evaluate(() => { localStorage.setItem('cosign.tour.v1','1'); localStorage.setItem('cosign.library.view','list') })
+await p.goto(BASE + '/app', { waitUntil: 'networkidle0' }); await new Promise(r=>setTimeout(r,300))
+await p.screenshot({ path: '/tmp/e-library-list.png' }); console.log('library-list')
+// grid view
+await p.evaluate(() => localStorage.setItem('cosign.library.view','grid'))
+await p.goto(BASE + '/app', { waitUntil: 'networkidle0' }); await new Promise(r=>setTimeout(r,300))
+await p.screenshot({ path: '/tmp/e-library-grid.png' }); console.log('library-grid')
+// work detail (No Ceilings, pending approval)
+await p.goto(BASE + '/app', { waitUntil: 'networkidle0' })
+await p.evaluate(() => { const el=[...document.querySelectorAll('button')].find(e=>e.innerText.includes('No Ceilings')); el&&el.click() })
+await new Promise(r=>setTimeout(r,500)); await p.screenshot({ path: '/tmp/e-work.png' }); console.log('work')
+// propose modal (open Velvet Static → Propose a change)
+await p.goto(BASE + '/app', { waitUntil: 'networkidle0' })
+await p.evaluate(() => { const el=[...document.querySelectorAll('button')].find(e=>e.innerText.includes('Velvet Static') && !e.innerText.includes('Type Beat')); el&&el.click() })
+await new Promise(r=>setTimeout(r,400))
+await p.evaluate(() => { const el=[...document.querySelectorAll('button')].find(e=>e.innerText.includes('Propose a change')); el&&el.click() })
+await new Promise(r=>setTimeout(r,400)); await p.screenshot({ path: '/tmp/e-propose.png' }); console.log('propose')
 await b.close()

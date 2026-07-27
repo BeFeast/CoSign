@@ -173,7 +173,7 @@ export function buildSeed(): Database {
         id: 'n_1',
         user_id: 'u_nova',
         type: 'approval_requested',
-        title: 'Rue wants your co-sign',
+        title: 'Rue needs your approval',
         body: '“No Ceilings” — proposed adding you as Writer at 50%.',
         work_id: 'w_song',
         read_at: null,

@@ -41,17 +41,27 @@ body {
 }
 
 @layer components {
+  /* Containers stay square. */
   .card {
     @apply bg-bg-card border border-line;
   }
+  /* Interactive elements get a subtle 4px (rounded-sm). */
   .input {
-    @apply w-full bg-bg-soft border border-line px-3.5 py-2.5 text-ink placeholder:text-ink-faint outline-none transition-colors
+    @apply w-full bg-bg-soft border border-line rounded-sm px-3.5 py-2.5 text-ink placeholder:text-ink-faint outline-none transition-colors
       focus:border-brand;
   }
   .label {
     @apply block text-xs font-medium text-ink-soft mb-1.5;
   }
   .chip {
-    @apply inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium;
+    @apply inline-flex items-center gap-1.5 rounded-sm px-2.5 py-1 text-xs font-medium;
   }
+}
+
+/* Hatched fill for unconfirmed / not-yet-agreed split shares. */
+.hatch {
+  background-image: repeating-linear-gradient(45deg, var(--h1, #55555f) 0 3px, var(--h2, #2a2a31) 3px 6px);
+}
+.hatch-red {
+  background-image: repeating-linear-gradient(45deg, #e63b3b 0 3px, #5e2224 3px 6px);
 }

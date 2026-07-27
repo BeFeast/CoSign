@@ -26,7 +26,7 @@ const clickText = async (t) => {
 
 await step('reset to fresh seed', async () => {
   await page.goto(BASE, { waitUntil: 'networkidle0' })
-  await page.evaluate(() => localStorage.clear())
+  await page.evaluate(() => { localStorage.clear(); localStorage.setItem('cosign.tour.v1', '1') })
   await page.reload({ waitUntil: 'networkidle0' })
 })
 
@@ -39,11 +39,11 @@ await step('open app → library shows seeded works', async () => {
   await page.goto(BASE + '/app', { waitUntil: 'networkidle0' })
   const t = await text()
   if (!t.includes('Velvet Static')) throw new Error('sample missing')
-  if (!t.includes('Library')) throw new Error('no library heading')
+  if (!t.includes('Your catalog')) throw new Error('no catalog heading')
 })
 
 await step('search resolves AKA (rhodesloop → Velvet Static)', async () => {
-  await page.type('input[placeholder="Search any title or AKA…"]', 'rhodesloop')
+  await page.type('input[placeholder="Search titles, AKAs, people…"]', 'rhodesloop')
   await new Promise((r) => setTimeout(r, 250))
   const t = await text()
   if (!t.includes('Velvet Static')) throw new Error('AKA search failed')
@@ -57,13 +57,13 @@ await step('open sample work → roster shows 3 @ 33%', async () => {
 })
 
 await step('lineage tab shows used-by beat', async () => {
-  await clickText('Lineage')
+  await clickText("What it's built on")
   const t = await text()
   if (!t.includes('Used by')) throw new Error('no used-by section')
 })
 
 await step('share credit pack → create link', async () => {
-  await clickText('Roster & splits')
+  await clickText('People & splits')
   await clickText('Share credit pack')
   await new Promise((r) => setTimeout(r, 300))
   await clickText('Create share link')
@@ -91,18 +91,17 @@ await step('co-sign flow: switch to Nova, approve No Ceilings proposal', async (
   await page.goto(BASE + '/app', { waitUntil: 'networkidle0' })
   await clickText('No Ceilings')
   let t = await text()
-  if (!t.includes('waiting on co-signs')) throw new Error('no pending banner')
-  // Nova is current user and is affected → should see Co-sign button
+  if (!t.includes('Needs your approval') && !t.includes('wants to change who owns')) throw new Error('no approval panel')
+  // Nova is current user and is affected → should see the approve button
   const before = await page.evaluate(() => JSON.parse(localStorage.getItem('cosign.db.v1')).proposals.map(p=>({id:p.id,work:p.work_id,status:p.status})))
   console.log('   proposals before:', JSON.stringify(before))
   const cur = await page.evaluate(() => JSON.parse(localStorage.getItem('cosign.db.v1')).current_user_id)
   console.log('   current user:', cur)
-  await clickText('Co-sign this')
+  await clickText('I agree')
   await new Promise((r) => setTimeout(r, 400))
   const after = await page.evaluate(() => JSON.parse(localStorage.getItem('cosign.db.v1')).proposals.map(p=>({id:p.id,work:p.work_id,status:p.status})))
   console.log('   proposals after:', JSON.stringify(after))
-  t = await text()
-  if (t.includes('waiting on co-signs')) throw new Error('proposal did not resolve after full approval')
+  if (!after.some((p) => p.id === 'p_1' && p.status === 'approved')) throw new Error('proposal did not resolve after full approval')
 })
 
 await browser.close()

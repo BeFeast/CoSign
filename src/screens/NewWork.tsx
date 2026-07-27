@@ -75,7 +75,7 @@ export default function NewWork() {
         <IconArrowLeft size={16} /> Back
       </button>
       <h1 className="text-2xl font-extrabold tracking-tight">New work</h1>
-      <p className="mb-6 mt-1 text-sm text-ink-soft">Add who was on it. Splits start even and stay locked until everyone co-signs a change.</p>
+      <p className="mb-6 mt-1 text-sm text-ink-soft">Add who was on it. Splits start even and stay locked until everyone agrees to a change.</p>
 
       <div className="space-y-5">
         {/* Type */}
