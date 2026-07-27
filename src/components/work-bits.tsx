@@ -96,7 +96,7 @@ const CELL = {
 
 export function WorkTableHeader() {
   return (
-    <div className="flex items-center gap-4 border-b border-line-soft px-4 pb-2 text-[10px] font-semibold uppercase tracking-wider text-ink-faint">
+    <div className="flex items-center gap-4 border-b border-line-soft bg-bg-soft px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-ink-faint">
       <span className="w-[30px] shrink-0" />
       <span className="flex-1">Work</span>
       <span className={CELL.who}>Who owns what</span>
