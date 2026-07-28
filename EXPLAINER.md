@@ -4,6 +4,7 @@
 **CoSign keeps a receipt for who owns what on every track you make** — automatically — and taps you on the shoulder the moment one starts making money.
 
 ## 5-second version (pick per audience)
+- **Send angle (the hook):** "Export your stems and fire them straight to your collaborator in one click — and the credits track themselves."
 - **Money angle (best for producers):** "You're earning on songs that aren't registered — you're losing money. CoSign catches that. And we take **0%**."
 - **Receipt angle:** "It's the **cap table for a song** — who owns what, locked so it can't quietly change."
 - **Backlog angle:** "1000 beats, 10 will matter — CoSign tracks all of them for free so you don't lose the 10."
@@ -19,7 +20,8 @@
 
 ## The spine (the real idea)
 **Capture the 99% for free → do the paperwork only on the 1% that earns.**
-- **Capture** with no admin — reads file names like `Velvet 95bpm Gm @antn42` (optional DAW plugin for exact BPM/key; never required).
+- **The front door — send:** export named stems and send them straight to a collaborator (no links). It's a chore you already do; doing it here logs *who's on it* + the lineage automatically. Come for the sender, stay for the ledger.
+- **Capture** with no admin — also reads file names like `Velvet 95bpm Gm @antn42` (optional DAW bridge for exact BPM/key; never required).
 - **Trigger** — flags songs that are earning but missing PRO data, and reminds you.
 - **Vault** — one entry per song: splits, PRO/IPI, contracts, contacts, earnings.
 
@@ -29,4 +31,4 @@ Operational tool, **0% royalty taken** (vs Songtrust/Sentric). Tracks **people +
 ---
 ### Live today vs. coming (don't oversell in a demo)
 - **Live:** the vault (works, layers, splits), the co-sign/locked-splits flow, credit + PRO pack, contacts.
-- **Coming (v2/v3):** filename auto-capture, PRO-status tracker + earnings alerts, PDF split sheets/contracts, DAW plugin.
+- **Coming (v2/v3):** stem-export + direct send, filename auto-capture, PRO-status tracker + earnings alerts, PDF split sheets/contracts, DAW bridge.

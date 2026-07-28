@@ -218,6 +218,15 @@ A producer noted: **~99% of songs never make money — doing admin on all 1000 t
 
 This unifies every idea collected: auto-capture makes the 99% free; a money-trigger fires on the 1%.
 
+### The front door: stem-export → auto-send (the acquisition wedge)
+
+The strongest way *in*. Via the DAW bridge, **export named stems and send them straight to a chosen collaborator** — no links, direct — in one action.
+
+- **Chore-remover, not admin.** This is the "strip beat → samples → send to producers" slog from the *very first* interview — removed. Nobody opens a rights ledger; everybody would use a one-click "export + send my stems."
+- **It captures what nothing else can: the collaborator.** Filenames/plugins get BPM/key but never *who's on it*. When you pick who to send to, CoSign knows **both parties + the lineage automatically** — the send *is* the provenance event. The ledger builds itself from an action they already do.
+- **Two-part model:** stem-send = **acquisition wedge** (removes a chore + pulls the recipient in → network loop); PRO tracker / money-recovery = **retention + monetization**. "Come for the sender, stay for the ledger." Could even *feel* like a standalone producer stem-sender that builds the rights graph underneath.
+- ⚠️ **Cost/risk to name:** moving files is real infrastructure — big WAV/stem uploads, storage + bandwidth, delivery notifications — heavier than today's localStorage ledger. "No links / direct send" means CoSign **hosts/relays the files** and the recipient basically has to be on CoSign (simultaneously the growth loop *and* a friction point).
+
 ### Layer 1 — Capture (make logging the 99% free)
 
 A **ladder of on-ramps, each optional; the product must work at the top rung with no install:**
@@ -377,6 +386,7 @@ Splitproof · Trackstack · InTheRoom · TagIn · RollCall · OnRecord · CueShe
 | 2026-07-28 | Adopt Gerion's **money-recovery hook** (PRO status tracker + earnings log + alerts) and **0%-royalty operational-tool** positioning (vs Songtrust) |
 | 2026-07-28 | Priority: capture = on-ramp, money-recovery = hook, co-sign = signable-split-sheet feature (not the whole thesis) |
 | 2026-07-28 | AI audio fingerprinting (Track & Compare) = far-future moat, not near-term (cold-start + cost) |
+| 2026-07-28 | **The send is the front door:** stem-export → direct auto-send = the acquisition wedge (a chore-remover that captures both parties + lineage). Money-recovery = retention. Flag: real file-hosting infra/cost |
 
 ---
 
