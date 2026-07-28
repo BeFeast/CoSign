@@ -324,7 +324,36 @@ The dumbest version that tests the wedge:
 
 ---
 
+## Competitive landscape (researched 2026-07-28)
+
+**Takeaway: the market exists (validates the need), but our exact "send + split" wedge is partly taken. Differentiate on _auto-capture + money-recovery_, not "send + split sheet."**
+
+The field:
+- **Split sheets (form/sign):** SplitChord (#1, e-sign, AI voice parser), SPLITS (Create Music Group, free), DistroKid Splits (master only).
+- **Stem delivery / file sharing:** Highnote (Dropbox-backed), Splice Studio, SyncMuse (git-style versioning).
+- **Collection (take a %):** Songtrust, Sentric — what we do *not* want to be.
+- **Credits DBs:** Muso.ai, credits.fm.
+
+**The two that overlap CoSign almost exactly:**
+- **SessionSplit** (sessionsplit.app) — *"Protect your music before it leaves the session."* Secure stem delivery + split-sheet signing + escrow payments + verified public-profile credits. Nearly our "send stems → auto-log split → verified credit" thesis. **Closest competitor.**
+- **Sound Credit** (soundcredit.com) — *"Dropbox for music + Google Docs for metadata."* File sharing + credits + splits + metadata export to BMI/ASCAP/MLC/SoundExchange; subscription; **takes no royalty %.** Covers our vault + credit-pack + PRO handoff.
+
+**Honest differentiation (what's real vs not):**
+- ❌ "Send stems + split sheet + verified credits" — **not novel** (SessionSplit does it).
+- ❌ "0% royalty / operational not collection" — differentiates vs Songtrust, **not** vs Sound Credit / SessionSplit (they take no cut either). *Corrects an earlier overstatement.*
+- ✅ **Zero-admin auto-capture** (filename / @handle / DAW bridge) — competitors make you fill a form or voice-dictate. "Capture all 1000 songs for free without a split sheet" is less occupied.
+- ✅ **Money-recovery alerts** (PRO-status + earnings) — nobody clearly leads with *"earning but unregistered = losing money now"* as an active watchdog. Sound Credit *documents* metadata; it doesn't *nag about lost income.*
+- ✅ **99/1 posture** — competitors are admin-first (a split sheet per song). Ours: "no paperwork until money shows up."
+
+**Repositioning:** move *off* "send + split" (taken) → *onto* **"auto-capture everything + tell me which songs are losing me money."**
+
+*Sources: splitchord.com · sessionsplit.app · soundcredit.com · highnote.fm · syncmuse.co*
+
+---
+
 ## Naming brainstorm
+
+> **Status (2026-07-28): name DEFERRED until launch — not a blocker pre-product.** Domain scan: `cosign.com/.io/.app/.co/.studio/.dev/.xyz/.pro` + `trycosign/getcosign/usecosign` all taken; **only `cosign.music` and `cosign.audio` are free.** "Co-sign" is also a common English word (weak SEO) and an old CoSign SSO project exists → **hard to own.** Since differentiation is shifting to *auto-capture + money-recovery* (not the "co-sign" act), revisit the name when we're near a real product/launch.
 
 ### Naming criteria
 - Memorable, easy to say / spell  
@@ -433,6 +462,8 @@ Splitproof · Trackstack · InTheRoom · TagIn · RollCall · OnRecord · CueShe
 | 2026-07-28 | **Build start = thin send loop** (drop stems → "collab? who?" → email link); forces the backend (auth + storage) everything needs |
 | 2026-07-28 | Channel naming = **track name first**; AI instrument-recognition only as fallback for unnamed channels (don't build the classifier first) |
 | 2026-07-28 | DAW bridge + AI naming are **automation polish, not v1** — validate the send loop with a plain web/desktop drop first |
+| 2026-07-28 | Competitive scan: **SessionSplit + Sound Credit overlap heavily**; "send+split" is partly taken → differentiate on **auto-capture + money-recovery**, not send/split |
+| 2026-07-28 | **Name deferred until launch** — cosign.com/.io/.app/.co all taken, only .music/.audio free, weak SEO; not blocking pre-product |
 
 ---
 
