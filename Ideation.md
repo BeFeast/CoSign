@@ -4,8 +4,8 @@
 > PRD comes later (requirements, MVP scope, acceptance criteria).  
 > This file captures: problem, who it’s for, product thesis, decisions, naming, open questions.
 
-**Last updated:** 2026-07-26  
-**Status:** Phase 1 locked · **Name: CoSign** (working) · MVP built · **v2 direction: adoption / kill the admin tax** (see below)
+**Last updated:** 2026-07-28  
+**Status:** Phase 1 locked · **Name: CoSign** (working) · MVP built · **v2**: adoption / kill the admin tax · **v3**: capture the 99%, paperwork on the 1% (see below)
 
 ---
 
@@ -206,6 +206,72 @@ Once a work exists, CoSign can **emit the canonical filename** to paste back —
 
 ---
 
+## v3 direction — capture the 99%, do the paperwork on the 1% (synthesis, 2026-07-28)
+
+Consolidates producer input (Gerion), Slack ideation, and a working DAW-plugin POC into one spine.
+
+### The spine (reframes the whole thesis)
+
+A producer noted: **~99% of songs never make money — doing admin on all 1000 to protect the 1% is why nobody does it.** So:
+
+> **Capture everything with ~zero effort, then only do the real paperwork on the songs that show signs of life** (a placement, streams, a PRO gap while earning). Insurance that costs nothing until it pays off.
+
+This unifies every idea collected: auto-capture makes the 99% free; a money-trigger fires on the 1%.
+
+### Layer 1 — Capture (make logging the 99% free)
+
+A **ladder of on-ramps, each optional; the product must work at the top rung with no install:**
+- **L1 · Filename ingestion (no install, default).** Parse `Velvet 95bpm Gm @antn42 @timmyxholliday` → work + roster. (See v2 above.)
+- **L2 · Watched export folder (no install, auto).** Drop DAW exports in a folder, auto-ingest.
+- **L3 · DAW plugin/relay (opt-in, power users).** POC **already built** (Oleg): a CoSign audio-FX plugin relays live session data — BPM, key, time-sig, track/project name — to a local Go backend (`cosign-server :9477`), cross-platform (DAW client → Go/Python server, Mac/Win/Linux). Deepest + exact metadata.
+  - ⚠️ **Installing a VST is itself friction** — a turn-off for some. So the plugin is a *bonus layer, never the front door.* Filename/folder capture is the universal path; the plugin is for those who want exact BPM/key pushed automatically.
+  - Note: the plugin gives *technical* metadata; **collaborators still come from the @handles** (filename/manual). It doesn't replace the identity wedge.
+
+### Layer 2 — Trigger (monetize the 1%, from Gerion)
+
+- **PRO Status Tracker** — flags songs *earning but unregistered*. The money-recovery hook, and the sharpest reason to sign up ("you're losing money right now").
+- **Placement & Earnings Log** — manual entry or **CSV import from PRO statements**; the signal that a song matters.
+- **Alerts** — "this song is generating revenue with incomplete PRO data."
+- On trigger → generate the split sheet, register the PRO, pull in contacts/contracts. Paperwork happens *just-in-time*, not up front.
+
+### Layer 3 — Source of truth (Gerion's operational catalog)
+
+- **Song Vault** (≈ our Work) with an expanded per-song data model: ISWC/ISRC, release date; per-collaborator **PRO status + IPI**; **attached documents** (producer agreements, split sheets, contracts as PDF); **contacts** (manager/label/publisher/artist); **revenue tags** (sync/streaming/mechanical/performance/direct).
+- **Song-linked contact book** — "who do I call if this blows up."
+- **Signable split sheet + PDF export** (send it around).
+- **Contracts per work + PDF redline diff** — when the lawyer returns edits, show what changed; even better as an AI "summarize the changes" feature.
+
+### Positioning / differentiation
+
+- **Operational tool, takes 0% royalty** (vs Songtrust/Sentric, who take a cut). The producer's *internal workflow tool*, not a collection service. Tracks **people + deals**, not just revenue.
+- Still not a marketplace (BeatStars) or distributor — the layer before/after.
+
+### Monetization
+
+SaaS (per-song tier or flat monthly/annual) · optional paid **e-signature** add-on · **verified producer profile** (premium, for outbound placement opportunities).
+
+### Moonshot / moat (far future)
+
+**Track & Compare — AI audio fingerprinting.** Match samples by *sound* not filename ("does this exist / where's it been used"). Strongest long-term moat, but brutal cold-start (nothing to match until catalog volume) + cost. Note it, don't build near-term.
+
+### Revised lean MVP (factoring 99/1 + no plugin dependency)
+
+- Song entry + file/document upload (vault) — *mostly built.*
+- **Filename ingestion** (zero-install capture) — the wedge.
+- Split-sheet template + **PDF export**.
+- Contact list linked to each song.
+- **PRO status per collaborator + a simple "earning but unregistered" flag** (manual revenue log).
+- Defer: DAW plugin, live PRO API, AI sample-match, PDF diff.
+
+### Flags / open questions
+
+- **Lead wedge?** Rec: *capture* is the on-ramp, *money-recovery (PRO tracker)* is the hook, *co-sign* becomes the signable-split-sheet feature (not the whole thesis).
+- **The hard half:** the money-trigger needs real earnings/PRO data — CSV import is the pragmatic MVP; live PRO API later.
+- **ICP:** prolific producers/writers with big backlogs (many throwaways + a few that could hit).
+- Plugin stays optional forever; never gate the product on an install.
+
+---
+
 ## Naming brainstorm
 
 ### Naming criteria
@@ -306,6 +372,11 @@ Splitproof · Trackstack · InTheRoom · TagIn · RollCall · OnRecord · CueShe
 | 2026-07-26 | Identity primitive = **claimable producer tag + aliases** (not a platform login); socials link underneath |
 | 2026-07-26 | Tag-claim verification is **graph-weighted**; squatting a tag can't move money (co-sign protects splits) |
 | 2026-07-26 | Filename parser = heuristics + **always-confirm** + **per-user learned convention** (no universal regex) |
+| 2026-07-28 | v3 spine: **capture the 99% for free, do paperwork on the 1% that earns** (99% of songs never make money) |
+| 2026-07-28 | DAW plugin POC works (Oleg) but a VST install is friction → **plugin is an optional deep layer, filename/folder capture is the front door** |
+| 2026-07-28 | Adopt Gerion's **money-recovery hook** (PRO status tracker + earnings log + alerts) and **0%-royalty operational-tool** positioning (vs Songtrust) |
+| 2026-07-28 | Priority: capture = on-ramp, money-recovery = hook, co-sign = signable-split-sheet feature (not the whole thesis) |
+| 2026-07-28 | AI audio fingerprinting (Track & Compare) = far-future moat, not near-term (cold-start + cost) |
 
 ---
 
