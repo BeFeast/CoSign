@@ -2,7 +2,7 @@
 
 **A collab ledger for hybrid music creators** (samples / beats / songs). Tracks who made which layer, keeps PRO/credit info ready to share, remembers every title a work has had (AKAs), and requires multi-party approval before ownership splits change.
 
-- **Product docs:** [`Ideation.md`](./Ideation.md) (problem/thesis/direction — grew a lot), [`SPEC-v1.md`](./SPEC-v1.md) (the v1 build spec), [`EXPLAINER.md`](./EXPLAINER.md) (pitch cheat-sheet), [`PRD.md`](./PRD.md) (original MVP spec).
+- **Product docs:** [`Ideation.md`](./product/Ideation.md) (problem/thesis/direction — grew a lot), [`SPEC-v1.md`](./specs/SPEC-v1.md) (the v1 build spec), [`EXPLAINER.md`](./product/EXPLAINER.md) (pitch cheat-sheet), [`PRD.md`](./specs/PRD.md) (original MVP spec).
 - **Status:** Client-side MVP built + deployed; UI "usability pass" shipped 2026-07-28. **No backend yet.** Direction now points at a real backend build (the send loop, `SPEC-v1.md`).
 - **Last updated:** 2026-07-28
 

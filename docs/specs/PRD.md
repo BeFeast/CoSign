@@ -6,7 +6,7 @@
 | **Version** | MVP v0.1 |
 | **Status** | Draft for build |
 | **Date** | 2026-07-25 |
-| **Related** | [`Ideation.md`](./Ideation.md) — problem, thesis, decisions |
+| **Related** | [`Ideation.md`](../product/Ideation.md) — problem, thesis, decisions |
 
 ---
 

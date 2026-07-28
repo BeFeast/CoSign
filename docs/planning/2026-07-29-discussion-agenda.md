@@ -1,6 +1,6 @@
 # CoSign — discussion agenda: sharpening v1
 
-> Prep for the next working discussion. The ask: input on **"what v1 is ACTUALLY going to be"** ([`SPEC-v1.md`](../../SPEC-v1.md) = the send loop). This doc turns that ask into a decision-forcing agenda: every item below ends in a call we can write down, not a vibe. The root docs (SPEC-v1, Ideation, EXPLAINER, HANDOVER) are the source material; this note adds the recommendations and the trade-off reasoning.
+> Prep for the next working discussion. The ask: input on **"what v1 is ACTUALLY going to be"** ([`SPEC-v1.md`](../specs/SPEC-v1.md) = the send loop). This doc turns that ask into a decision-forcing agenda: every item below ends in a call we can write down, not a vibe. The root docs (SPEC-v1, Ideation, EXPLAINER, HANDOVER) are the source material; this note adds the recommendations and the trade-off reasoning.
 
 ## 1. Purpose
 
@@ -73,12 +73,3 @@ The milestone needs operational definition or it will drift into "some people tr
 2. **Build:** implement per spec against the existing app via the `repo.ts` swap; localStorage demo retired or flagged.
 3. **In parallel:** the five producers get locked, onboarding calls scheduled, email copy drafted.
 4. **Then:** validation window per §4; decision review with the four-event data on the table.
-
-**Where things live** (so the two surfaces don't drift):
-
-| Surface | Holds |
-|---------|-------|
-| **Management workspace** (private) | Meeting outcomes/decision notes with reasoning, PM tracking, validation results, session handovers. |
-| **Code repo** (`docs/` + root) | The code, SPEC-v1 (the frozen build contract), PRD/Ideation/EXPLAINER, and the synced planning docs (`docs/planning/`, locked decisions in `docs/decisions/`). The source of truth for *what is built*. |
-
-Decisions get recorded twice on purpose: the *decision + reasoning* as a management note (synced to `docs/`), the *resulting spec change* as a repo commit.
