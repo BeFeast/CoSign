@@ -2,35 +2,32 @@
 
 **A collab ledger for hybrid music creators** (samples / beats / songs). Tracks who made which layer, keeps PRO/credit info ready to share, remembers every title a work has had (AKAs), and requires multi-party approval before ownership splits change.
 
-- **Product docs:** [`PRD.md`](./PRD.md) (MVP spec), [`Ideation.md`](./Ideation.md) (problem/thesis)
-- **Status:** MVP built, working, deployed. Client-side only (no backend yet). Design refreshed 2026-07-26 (black + red, fully square, no emoji, first-launch tour).
-- **Last updated:** 2026-07-27
+- **Product docs:** [`Ideation.md`](./Ideation.md) (problem/thesis/direction — grew a lot), [`SPEC-v1.md`](./SPEC-v1.md) (the v1 build spec), [`EXPLAINER.md`](./EXPLAINER.md) (pitch cheat-sheet), [`PRD.md`](./PRD.md) (original MVP spec).
+- **Status:** Client-side MVP built + deployed; UI "usability pass" shipped 2026-07-28. **No backend yet.** Direction now points at a real backend build (the send loop, `SPEC-v1.md`).
+- **Last updated:** 2026-07-28
 
 ---
 
-## 0. 👋 Read me first — where we're headed next (the plan)
+## 0. 👋 Read me first — current state & next step
 
-**The insight (from producer interviews):** producers won't adopt CoSign because it feels like *extra admin* after an already-draining post-production slog. They agree it saves time long-run, but the cost lands at the worst moment. **So CoSign has to read work they already do, not add a step.**
+**Session 2026-07-28 was mostly product/ideation + a shipped UI pass. The plan evolved past the old "filename parser first" note — see below.**
 
-**The wedge:** producers already put everything in the **filename**, e.g. `Velvet 95bpm Gm @antn42 @timmyxholliday` → title `Velvet` · 95 BPM · `Gm` · roster `@antn42`, `@timmyxholliday`. Drop the file → CoSign fills it in. Zero new behaviour. (Full write-up + identity/verification thinking is in `Ideation.md` → "v2 direction — kill the admin tax".)
+**What shipped (live):** a full **"usability pass"** redesign, implemented from a design-doc export (`.dc.html` the owner supplied). Dropped the "co-sign" jargon for plain language, added a red **"needs you" lane**, **split bars**, a work-detail **before/after approval diff + roll call**, a new first-run, nav rename (Catalog / People / Your rights info), and 4px-on-controls. Deployed **content-only** to `cosign-3vs.pages.dev` + `cosign.befeast.com` (both 200). Also: logo→landing (temporary showcase) + catalog-table header spacing fix. Details in §7. **Still client-side only (localStorage).**
 
-**How we build it — cheapest-validation-first. Do NOT build the backend until the filename drop makes producers go "oh."**
+**Where the thinking landed — READ `Ideation.md`, it grew a lot (v2, v3, build plan, competitive):**
+- **Thesis (v3 spine):** *capture the 99% of songs for ~free, do the real paperwork only on the 1% that earns.* 99% never make money, so admin-per-song is exactly why producers won't adopt.
+- **The front door = the send.** Export named stems → send straight to a chosen collaborator (email link). A chore-remover (adoption) that auto-captures both people + lineage — *the ledger builds itself.* "Come for the sender, stay for the ledger."
+- **Money-recovery hook (retention):** PRO-status tracker + earnings (CSV) + alerts — *"this song is earning but unregistered = you're losing money now."*
+- **Competitive reality (researched, sources in Ideation):** crowded space. **SessionSplit** (send + split-sheet + escrow + verified credits) and **Sound Credit** (file-sharing + credits + PRO metadata export, no cut) overlap heavily → "send + split" is **not novel**; differentiate on **auto-capture + money-recovery**, not send/split.
+- **DAW plugin POC exists** (Oleg): a bridge relays live BPM/key/track/project to a local Go server. But a VST install is friction → *optional deep layer, never the front door.* Track-name-first for naming; AI instrument-recognition only as a fallback.
+- **Name deferred** — `cosign.com/.io/.app` all taken, only `.music`/`.audio` free, weak SEO. Not blocking; revisit at launch.
+- **Slogan:** *Send, track, split.*
 
-- **Phase 0 — the parser (next up, ~a few days, zero backend, client-side):**
-  - `lib/parse-filename.ts` — pure function: detect BPM/key/@tags, title = whatever's left. Unit-test against real filenames.
-  - New Work gets a **drop zone**: drop file(s) → prefill title/bpm/key/roster → **confirm card** (fix anything, never a silent write). Batch-drop a folder → list of draft works.
-  - Small schema add: `bpm`/`key` on `Work`; roster can point at an **unclaimed tag** (today's "local contact" is already ~this).
-  - 👉 Ship this, put it in front of the producers who were interviewed. If the "just drop the file" moment lands, the rest is worth building. If not, we learned cheap.
+**➡️ Next step: build the v1 send loop.** Full spec in **`SPEC-v1.md`**: sign in (magic link) → drag stems → pick collaborator → set split → send → recipient downloads + accepts. **Supabase** backend (auth + storage + email), reusing the existing app via the **`repo.ts` swap point**. This is where CoSign stops being a localStorage demo.
 
-- **Phase 1 — tag = identity (still fakeable, no backend):** model a `ProducerTag` (canonical + aliases); users *claim* tags; unclaimed tag = placeholder. Filename tag resolves to a claimed tag/alias or auto-creates a placeholder. Still demoable via the "Viewing as" switcher.
-
-- **Phase 2 — the backend (big lift, the real unlock):** the Supabase project that was always the deferred "next real thing" — auth, Postgres + RLS, reimplement `repo.ts` against it (that seam exists for exactly this; UI doesn't change). The **credit graph** (who-tags-whom) becomes real data → powers the collab directory, "you were credited" invites (viral loop), real email.
-
-- **Phase 3 — verification + growth loop:** graph-weighted tag claiming (notability = in-degree) so `@metroboomin` can't be grabbed; social OAuth / bio-code proof + collaborator vouching; getting tagged pulls you in.
-
-**Honest dependency:** the full vision (claiming, verification, cross-user graph, viral loop) *needs* real multi-user auth + backend — no way around it. We front-load Phase 0 to de-risk the thesis for ~free, then commit to the backend once it's proven.
-
-**➡️ Decision waiting for you:** give the go-ahead to spec + build **Phase 0** (filename parser + drop-to-prefill), or discuss more first. That's the highest-signal, lowest-cost next move.
+**4 open decisions before building** (recommendations given verbally, not yet written into the spec):
+1. Auth → **magic link** (add Google later). 2. Download **without an account** (gate only "accept the split"). 3. Split → **people required, % optional** (default even). 4. Limits → **1 GB/send, files expire ~30d, ledger record persists forever.**
+Owner said "we'll figure this out later" — so **these 4 are unlocked, not decided.** Confirm them, then the spec is buildable.
 
 ---
 
