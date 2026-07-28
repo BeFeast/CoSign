@@ -1,5 +1,7 @@
 # What is CoSign? (pitch cheat-sheet)
 
+**Slogan: Send, track, split.**
+
 ## The one-liner
 **CoSign keeps a receipt for who owns what on every track you make** — automatically — and taps you on the shoulder the moment one starts making money.
 
