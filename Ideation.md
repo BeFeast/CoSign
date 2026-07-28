@@ -281,6 +281,49 @@ SaaS (per-song tier or flat monthly/annual) · optional paid **e-signature** add
 
 ---
 
+## Build plan — where we start (2026-07-28)
+
+**Start with ONE thing: a thin "send" loop.** It's the acquisition wedge, it auto-builds the ledger (captures both people + lineage), and it forces the backend everything else needs. Don't keep adding to the localStorage demo — that's a dead end for the real product; `repo.ts` is the swap point.
+
+### v1 — the send loop (no DAW bridge, no AI)
+
+The dumbest version that tests the wedge:
+- A web/desktop **drop**: drag exported stems → **"Is this a collab? with who?"** (pick a contact / @handle / email) → **send**.
+- Backend: real accounts (**auth**) + **file storage** + a "send" record + **transactional email** with a download link.
+- Recipient downloads; if not a user, the email **pulls them in** (network loop).
+- The split/roster is logged as a **byproduct of the send** — no separate admin step.
+
+### The naming question (guitar / piano / drums) — track name first, AI later
+
+- **Use the track name the producer already set** ("Guitar Wet", "Bass DI", "Drums MIDI") — free, reliable, ~90%. The DAW bridge just reads it.
+- **AI instrument recognition** (YAMNet / audio-tagging / stem-separators like Demucs) exists but is heavier + imperfect (processed synth vs piano vs pad is ambiguous) → **fallback only for unnamed "Audio 1" channels, always confirmable.** Don't build the classifier first.
+
+### Sequence after v1
+
+1. Send loop (above).
+2. **DAW bridge** (M4L Ableton / controller ext Bitwig) auto-catches the export + reads track names — removes the manual drop. Optional layer (install is friction).
+3. AI instrument-naming for unnamed channels.
+4. **Filename auto-fill**, then **PRO-status + earnings (CSV) + alerts** (retention/money), then contracts/PDF.
+
+### Effort honesty
+
+- **Easy:** track-name read, the "collab? who?" dialog, contacts.
+- **Medium:** file upload + storage + email (real cost — stems are big WAVs; need resumable upload + link expiry).
+- **Hard/later:** AI recognition, reliable cross-DAW export detection, full DAW coverage.
+
+### Don't build (now / maybe ever)
+
+- **AI sample-match fingerprinting** — far-future moat (cold-start + cost).
+- **DAW plugin *first*** — friction + per-DAW fragmentation; it's polish, not the front door.
+- **Live PRO API** — huge lift; use **CSV import** early.
+- **Placement marketplace / "verified profiles"** — a BeatStars pivot; resist.
+- **Heavy per-song metadata (ISWC/ISRC) up front** — the admin you're killing; only on the 1% that earn.
+- More **co-sign UI polish** — already built; it's a feature now, not the product.
+
+**First real milestone:** one send loop, end-to-end, used by ~5 real producers — watch if they come back.
+
+---
+
 ## Naming brainstorm
 
 ### Naming criteria
@@ -387,6 +430,9 @@ Splitproof · Trackstack · InTheRoom · TagIn · RollCall · OnRecord · CueShe
 | 2026-07-28 | Priority: capture = on-ramp, money-recovery = hook, co-sign = signable-split-sheet feature (not the whole thesis) |
 | 2026-07-28 | AI audio fingerprinting (Track & Compare) = far-future moat, not near-term (cold-start + cost) |
 | 2026-07-28 | **The send is the front door:** stem-export → direct auto-send = the acquisition wedge (a chore-remover that captures both parties + lineage). Money-recovery = retention. Flag: real file-hosting infra/cost |
+| 2026-07-28 | **Build start = thin send loop** (drop stems → "collab? who?" → email link); forces the backend (auth + storage) everything needs |
+| 2026-07-28 | Channel naming = **track name first**; AI instrument-recognition only as fallback for unnamed channels (don't build the classifier first) |
+| 2026-07-28 | DAW bridge + AI naming are **automation polish, not v1** — validate the send loop with a plain web/desktop drop first |
 
 ---
 

@@ -2,6 +2,8 @@
 
 **Slogan: Send, track, split.**
 
+*In one line: drag your stems in → pick who it's with → send. They get it by email, and the split logs itself.*
+
 ## The one-liner
 **CoSign keeps a receipt for who owns what on every track you make** — automatically — and taps you on the shoulder the moment one starts making money.
 
